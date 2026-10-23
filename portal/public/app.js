@@ -410,12 +410,106 @@
         <div class="taglist">${lockedGroups.map((g) => `<span class="tag off">${esc(g)}</span>`).join('')}</div>
         ${brand.upgradeUrl ? `<a class="btn accent" style="margin-top:20px" href="${esc(brand.upgradeUrl)}" target="_blank" rel="noopener">Upgrade my plan</a>` : ''}
       </div>` : ''}
+      <div id="getApp"></div>
       ${brand.support ? `<p class="muted">Need help? ${esc(brand.support)}</p>` : ''}
       <button class="btn ghost" id="logout">Sign out</button>
     </div>`);
     main.append(page);
+    renderGetApp($('#getApp', page));
     $('#logout', page).onclick = async () => { await api('/api/logout', { body: {} }); me = null; location.hash = '#/'; renderLogin(); };
   }
+
+  // ───────── get the app ─────────
+  // Phones, laptops and TV boxes can install the web app; Android also gets a real app (APK).
+  const inAndroidApp = /FlexApp/.test(navigator.userAgent);
+  const standalone = () => inAndroidApp || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  let installPrompt = null;
+  addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installPrompt = e; });
+  async function renderGetApp(box) {
+    if (!box || standalone()) return;
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/.test(ua);
+    const info = await api('/api/app').catch(() => ({}));
+    const apk = info.android;
+    const how = isIOS ? 'Tap the Share button in Safari, then <b>Add to Home Screen</b>.'
+      : isAndroid ? (apk ? 'Download the app below. If your phone asks, allow installing apps from your browser.' : 'Open your browser menu, then tap <b>Install app</b> or <b>Add to Home screen</b>.')
+      : 'In Chrome or Edge, click the install icon at the right of the address bar, or open the menu and choose <b>Install</b>.';
+    const el = h(`<div class="plan-card">
+      <h2>Get the app</h2>
+      <p class="muted" style="margin:6px 0 16px">Watch ${esc(brand.name)} from your home screen, on your phone, laptop or TV box.</p>
+      <div class="actions" style="display:flex;flex-wrap:wrap;gap:12px">
+        <button class="btn accent" id="installBtn" hidden>Install ${esc(brand.name)}</button>
+        ${apk ? `<a class="btn ${isAndroid ? 'accent' : 'ghost'}" href="${esc(apk.url)}" download>Download Android app (${Math.max(1, Math.round(apk.size / 1048576))} MB)</a>` : ''}
+      </div>
+      <p class="muted" style="margin:14px 0 0">${how}</p>
+      ${apk ? '<p class="muted" style="margin:8px 0 0">The Android app works on phones and Android TV boxes. On a TV box, install it with a file manager or the Downloader app.</p>' : ''}
+    </div>`);
+    box.replaceWith(el);
+    const btn = $('#installBtn', el);
+    const show = () => { btn.hidden = !installPrompt; };
+    show(); addEventListener('beforeinstallprompt', show);
+    btn.onclick = async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt();
+      const r = await installPrompt.userChoice.catch(() => null);
+      installPrompt = null; show();
+      if (r?.outcome === 'accepted') toast(`${brand.name} is on your home screen`);
+    };
+  }
+  function keepAwake(on) { try { window.FlexApp?.keepAwake?.(!!on); } catch { /* not in the Android app */ } }
+
+  // ───────── TV remote and arrow keys ─────────
+  // Arrow keys move focus to the nearest control in that direction, so the whole app
+  // works with a TV remote. The player keeps its own keys (seek, channel up/down).
+  const FOCUSABLE = 'a[href], button:not([disabled]), input:not([type=hidden]), select, [tabindex]:not([tabindex="-1"])';
+  const shown = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(el).visibility !== 'hidden'; };
+  function moveFocus(dir) {
+    const scope = [...document.querySelectorAll('.modal')].pop() || app;
+    const items = [...scope.querySelectorAll(FOCUSABLE)].filter(shown);
+    const cur = document.activeElement;
+    if (!cur || cur === document.body || !scope.contains(cur)) { const inMain = items.filter((el) => el.closest('main'));
+      const first = inMain.find((el) => el.matches('.chan, .card, .g-chan, .btn, .chip, .field input')) || inMain[0] || items[0]; first?.focus(); return !!first; }
+    const a = cur.getBoundingClientRect();
+    const ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+    let best = null, bestScore = Infinity;
+    for (const el of items) {
+      if (el === cur) continue;
+      const b = el.getBoundingClientRect();
+      const beyond = dir === 'left' ? b.right <= a.left + 1 : dir === 'right' ? b.left >= a.right - 1 : dir === 'up' ? b.bottom <= a.top + 1 : b.top >= a.bottom - 1;
+      if (!beyond) continue;
+      // left/right stay in the same row: at the end of a row nothing happens, like a TV menu
+      if ((dir === 'left' || dir === 'right') && (b.bottom <= a.top + 2 || b.top >= a.bottom - 2)) continue;
+      const dx = b.left + b.width / 2 - ax, dy = b.top + b.height / 2 - ay;
+      const along = dir === 'left' ? -dx : dir === 'right' ? dx : dir === 'up' ? -dy : dy;
+      const across = dir === 'left' || dir === 'right' ? Math.abs(dy) : Math.abs(dx);
+      const score = along + across * 2.5;
+      if (score < bestScore) { bestScore = score; best = el; }
+    }
+    if (!best) return false;
+    best.focus({ preventScroll: true });
+    best.scrollIntoView({ block: dir === 'up' || dir === 'down' ? 'center' : 'nearest', inline: 'nearest', behavior: 'smooth' });
+    return true;
+  }
+  document.addEventListener('keydown', (e) => {
+    if (P || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    const t = e.target;
+    const typing = t.tagName === 'INPUT' && !['button', 'submit', 'checkbox', 'radio', 'range'].includes(t.type);
+    if ((e.key === 'GoBack' || e.key === 'BrowserBack' || (e.key === 'Backspace' && !typing))) { if (window.flexBack()) e.preventDefault(); return; }
+    const dir = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' }[e.key];
+    if (!dir) return;
+    if (typing && (dir === 'left' || dir === 'right')) return;     // move the text cursor
+    if (moveFocus(dir)) e.preventDefault();
+  });
+  // Back button (Android app and TV remotes): close the player or details first, then go back a page.
+  window.flexBack = () => {
+    if (P) { closePlayer(); return true; }
+    const m = [...document.querySelectorAll('.modal')].pop();
+    if (m) { $('.close', m)?.click(); return true; }
+    const hash = location.hash.replace(/^#/, '');
+    if (hash && hash !== '/') { if (history.length > 1) history.back(); else location.hash = '#/'; return true; }
+    return false;
+  };
 
   // ───────── login & suspended ─────────
   function loginArt() {
@@ -502,8 +596,8 @@
     el.addEventListener('mousemove', wake); el.addEventListener('touchstart', wake, { passive: true }); wake();
     const toggle = () => video.paused ? video.play() : video.pause();
     video.addEventListener('click', toggle);
-    video.addEventListener('play', () => { $('[data-a=toggle]', el).innerHTML = ICON.pause; wake(); });
-    video.addEventListener('pause', () => { $('[data-a=toggle]', el).innerHTML = ICON.play; el.classList.remove('idle'); });
+    video.addEventListener('play', () => { $('[data-a=toggle]', el).innerHTML = ICON.pause; wake(); keepAwake(true); });
+    video.addEventListener('pause', () => { $('[data-a=toggle]', el).innerHTML = ICON.play; el.classList.remove('idle'); keepAwake(false); });
     video.addEventListener('playing', () => setMsg(null));
     video.addEventListener('waiting', () => setMsg('<div class="spinner"></div>', true));
     $('.back', el).onclick = () => closePlayer();
@@ -519,6 +613,7 @@
       if (e.target.tagName === 'INPUT' && e.target.type !== 'range') return;
       if (e.key === 'Escape' && !document.fullscreenElement) closePlayer();
       if (e.key === ' ' || e.key === 'k') { e.preventDefault(); toggle(); }
+      if ((e.key === 'Enter' || e.key === 'MediaPlayPause') && !e.target.closest?.('button, select')) { e.preventDefault(); toggle(); }
       if (!live && e.key === 'ArrowLeft') video.currentTime -= 10;
       if (!live && e.key === 'ArrowRight') video.currentTime += 10;
       if (e.key === 'f') document.fullscreenElement ? document.exitFullscreen() : el.requestFullscreen?.();
@@ -646,6 +741,7 @@
     try { st.ts?.destroy(); } catch { /* */ }
     st.video.removeAttribute('src'); st.video.load();
     document.removeEventListener('keydown', st.onKey);
+    keepAwake(false);
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
     st.el.remove();
     document.body.style.overflow = '';
@@ -711,6 +807,7 @@
     }
   }
   window.addEventListener('hashchange', route);
+  if ('serviceWorker' in navigator && !inAndroidApp) navigator.serviceWorker.register('/sw.js').catch(() => {});
 
   (async () => {
     try { brand = await (await fetch('/api/brand')).json(); } catch { /* defaults */ }

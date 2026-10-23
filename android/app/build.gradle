@@ -1,0 +1,43 @@
+plugins { id 'com.android.application' }
+
+def flexUrl = project.findProperty('flexUrl') ?: 'https://tv.savenet.co.ke/'
+def flexName = project.findProperty('flexName') ?: 'Flex'
+def ks = System.getenv('FLEX_KEYSTORE')
+
+android {
+    namespace 'ke.savenet.flex'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'ke.savenet.flex'
+        minSdk 23
+        targetSdk 34
+        versionCode((System.getenv('FLEX_VERSION_CODE') ?: '1') as int)
+        versionName System.getenv('FLEX_VERSION_NAME') ?: '1.0'
+        buildConfigField 'String', 'FLEX_URL', "\"${flexUrl}\""
+        resValue 'string', 'app_name', flexName
+    }
+
+    signingConfigs {
+        release {
+            if (ks) {
+                storeFile file(ks)
+                storePassword System.getenv('FLEX_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('FLEX_KEY_ALIAS') ?: 'flex'
+                keyPassword System.getenv('FLEX_KEY_PASSWORD') ?: System.getenv('FLEX_KEYSTORE_PASSWORD')
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig ks ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+    buildFeatures { buildConfig true }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

@@ -408,3 +408,11 @@ select.sort { border-radius: 999px; padding: 7px 14px; font-size: 14px; }
 
 /* guide: the sticky channel column and time bar sit over moving programmes, so they need a denser frost */
 .guide .g-chan, .guide .g-times { background: rgba(252, 249, 244, .97); }
+
+/* ───────── TV remote focus: clear, large rings that read from the sofa ───────── */
+.card:focus-visible, .chan:focus-visible, .g-chan:focus-visible, .g-prog:focus-visible, .ep:focus-visible, .chip:focus-visible, .btn:focus-visible, .nav a:focus-visible, .tabbar a:focus-visible {
+  outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 14px;
+}
+.card:focus-visible { outline: 0; }
+.card:focus-visible .art { outline: 3px solid var(--accent); outline-offset: 3px; }
+.chan:focus-visible { transform: translateY(-3px); }

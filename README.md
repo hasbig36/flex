@@ -209,6 +209,17 @@ Set these in `.env` and restart the portal with `docker compose up -d portal`:
 
 The app works in any modern browser on phones, laptops and smart TVs, and can be installed to the home screen as an app.
 
+## 8. Apps for phones, TVs and laptops
+
+Customers get Flex as an app in two ways. Both open your site, so nothing else needs to be hosted.
+
+- **Install from the browser** (Android, iPhone, Windows, Mac, Chromebook). Chrome and Edge offer *Install*. On iPhone, use Safari's *Share > Add to Home Screen*. *My plan > Get the app* walks customers through it.
+- **Android app** for phones and Android TV / Google TV boxes. It has a TV launcher banner, works with the remote (arrows, OK, Back) and keeps the screen on while video plays. GitHub Actions builds it (`.github/workflows/android.yml`) and publishes `flex.apk` on the `android-latest` release. `sudo ./update.sh` downloads it into `apps/` (set by `APP_APK_URL`), and customers download it from *Get the app*. To build it yourself, run `gradle -p android assembleRelease -PflexUrl=https://tv.your-isp.co.ke/`.
+
+To sign every build with your own key, so customers can update without uninstalling, add the `FLEX_KEYSTORE_B64`, `FLEX_KEYSTORE_PASSWORD` and `FLEX_KEY_ALIAS` repository secrets (see the workflow file). You need that same key to publish on Google Play later.
+
+The whole web app works with arrow keys, so a TV remote, a keyboard or an air mouse can drive it.
+
 ## Sizing
 
 - **Live TV:** the portal relays the stream without re-encoding it, so cost is bandwidth only. Bandwidth is roughly bitrate × viewers, so 200 viewers × 4 Mbps ≈ 800 Mbps of on-net traffic.
@@ -238,4 +249,6 @@ portal/src/server.js      customer API, sign-in, access checks, stream relay
 portal/src/livetv.js      M3U playlist and XMLTV guide loader
 portal/src/jellyfin.js    media engine client
 portal/public/            the customer app (HTML/CSS/JS, no build step)
+android/                  Android app for phones and Android TV (WebView)
+apps/                     flex.apk for customers to download (fetched by update.sh)
 ```

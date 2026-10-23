@@ -7,3 +7,4 @@ mikrotik/out/
 data/
 data.backup-*/
 .DS_Store
+apps/*.apk

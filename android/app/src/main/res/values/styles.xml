@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="flex_bg">#F8F4EE</color>
+    <color name="flex_accent">#E8A33D</color>
+    <style name="FlexTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/flex_bg</item>
+        <item name="android:statusBarColor">@color/flex_bg</item>
+        <item name="android:navigationBarColor">@color/flex_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:colorAccent">@color/flex_accent</item>
+    </style>
+</resources>

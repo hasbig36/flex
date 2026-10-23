@@ -684,6 +684,34 @@ app.get('/api/admin/status', (req, res) => {
   });
 });
 
+// ── installable app ──
+// The web app installs from the browser (manifest below). The Android app (phones and
+// Android TV) is an APK the operator drops in APP_DIR; customers download it from "Get the app".
+const APP_DIR = process.env.APP_DIR || '/data/app';
+const APK_FILE = path.join(APP_DIR, 'flex.apk');
+app.get('/manifest.webmanifest', (req, res) => {
+  res.type('application/manifest+json').json({
+    name: BRAND.name, short_name: BRAND.name, description: BRAND.tagline,
+    id: '/', start_url: '/', scope: '/', display: 'standalone', orientation: 'any',
+    background_color: '#F8F4EE', theme_color: '#F8F4EE',
+    icons: [
+      { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { src: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' },
+    ],
+  });
+});
+app.get('/api/app', (req, res) => {
+  let android = null;
+  try { const st = fs.statSync(APK_FILE); android = { url: '/download/flex.apk', size: st.size, updated: st.mtime.toISOString() }; } catch { /* no APK yet */ }
+  res.json({ android });
+});
+app.get('/download/flex.apk', (req, res) => {
+  if (!fs.existsSync(APK_FILE)) return res.status(404).type('text').send('The Android app is not available yet.');
+  res.download(APK_FILE, `${BRAND.name.replace(/[^\w-]+/g, '') || 'Flex'}.apk`, { headers: { 'Content-Type': 'application/vnd.android.package-archive' } });
+});
+
 // ── web app ──
 const PUB = path.join(__dirname, '..', 'public');
 app.use(express.static(PUB, { index: false, maxAge: '1h' }));
