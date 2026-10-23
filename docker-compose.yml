@@ -1,0 +1,57 @@
+# Flex — branded TV & movies for your ISP customers, controlled from Splynx.
+#
+#   cp .env.example .env    # fill it in
+#   docker compose up -d
+#
+# Only the portal is published. The media engine stays private on the internal network;
+# publish its port only on your LAN/VPN for the one-time admin setup (see README).
+
+services:
+  portal:
+    build: ./portal
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      STATE_FILE: /data/state.json
+      SESSIONS_FILE: /data/portal-sessions.json
+    volumes:
+      - flex-data:/data
+      - ./config:/config:ro        # put channels.m3u / epg.xml here if you use files
+    ports:
+      - "${PORTAL_PORT:-8080}:8080"
+    depends_on: [jellyfin]
+
+  splynx-sync:
+    build: ./splynx-sync
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      JELLYFIN_URL: http://jellyfin:8096
+      STATE_FILE: /data/state.json
+      PACKAGES_FILE: /config/packages.yaml
+    volumes:
+      - flex-data:/data
+      - ./config:/config:ro
+    depends_on: [jellyfin]
+
+  jellyfin:
+    image: jellyfin/jellyfin:10.10.7
+    restart: unless-stopped
+    environment:
+      JELLYFIN_PublishedServerUrl: http://jellyfin:8096
+    volumes:
+      - jellyfin-config:/config
+      - jellyfin-cache:/cache
+      - ${MEDIA_PATH:-./media}:/media:ro
+    # Admin setup only: reachable on this host's LAN address, never expose to the internet.
+    ports:
+      - "${ENGINE_ADMIN_BIND:-127.0.0.1}:8096:8096"
+    # Hardware transcoding (Intel/AMD iGPU) — uncomment if the server has one:
+    # devices:
+    #   - /dev/dri:/dev/dri
+
+volumes:
+  flex-data:
+  jellyfin-config:
+  jellyfin-cache:

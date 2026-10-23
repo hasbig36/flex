@@ -1,0 +1,65 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Flex packages — the ONE place that decides who can watch what.
+#
+#  1. In Splynx, create a "Recurring" tariff for each TV plan
+#     (Tariff plans > Recurring; older Splynx calls it "Custom")
+#     (already created: Flex TV Free, Flex TV Moderate, Flex TV Premium).
+#  2. Match each tariff below, by name (simplest) or by Splynx ID, and list which
+#     packages it unlocks. A customer with several media services gets the
+#     combination of all of them.
+#  3. Define each package: which movie/series libraries (names exactly as in
+#     the media engine) and which live TV channel groups (the `group-title`
+#     in your M3U playlist).
+#
+#  Changes are picked up automatically on the next sync (no restart needed).
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Your Splynx plans (Tariff plans > Recurring). Prices include 16% VAT.
+#   14  Flex TV Free       KES 0
+#   15  Flex TV Moderate   KES 200 / month
+#   16  Flex TV Premium    KES 400 / month
+tariffs:
+  14: [free]
+  15: [moderate]
+  16: [premium]
+
+# Also matched by name, in case IDs differ (e.g. a test Splynx). Case-insensitive.
+tariff_names:
+  "Flex TV Free": [free]
+  "Flex TV Moderate": [moderate]
+  "Flex TV Premium": [premium]
+
+# Which Splynx service types to read.
+#   recurring = Tariff plans > Recurring (called "Custom" in older Splynx)
+#   internet  = bundle TV into internet plans (then map internet tariff IDs above)
+service_types: [recurring]
+
+# What each plan includes. Library names must match the media engine;
+# channel groups are the group-title values in your M3U playlist.
+packages:
+  free:
+    label: "Flex TV Free"
+    libraries: []
+    channel_groups: ["News", "Local"]
+    max_streams: 1
+
+  moderate:
+    label: "Flex TV Moderate"
+    libraries: ["Movies", "TV Shows", "Kids"]
+    channel_groups: ["News", "Local", "Music", "Kids", "Entertainment"]
+    max_streams: 2
+
+  premium:
+    label: "Flex TV Premium"
+    libraries: ["Movies", "TV Shows", "Kids", "Premium Movies"]
+    channel_groups: ["News", "Local", "Music", "Kids", "Entertainment", "Movies", "Sports"]
+    max_streams: 3
+    # The director must approve every Premium service before it switches on
+    # (Flex > /director). Until then the customer gets what's listed here.
+    requires_approval: true
+    while_pending: [moderate]
+
+# What locked content customers see (as an upgrade teaser) in the app.
+upsell:
+  show_locked_channels: true
+  message: "Not in your plan. Contact us or visit the customer portal to upgrade."

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F8F4EE">
+<title>Flex Approvals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="/icon.svg">
+<style>
+:root {
+  --bg: #F8F4EE; --ink: #221D18; --muted: #7B7066; --line: rgba(60,42,25,.10);
+  --accent: #E8A33D; --accent-text: #9A5F12; --ok: #2E9D63; --bad: #C8402F;
+  --glass: linear-gradient(140deg, rgba(255,255,255,.80), rgba(255,255,255,.50));
+  --edge: rgba(255,255,255,.92);
+  --shadow: inset 0 1px 0 #fff, 0 12px 32px rgba(92,62,32,.10), 0 1px 3px rgba(92,62,32,.06);
+  --display: "Bricolage Grotesque", system-ui, sans-serif; --body: "Figtree", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--body); -webkit-font-smoothing: antialiased;
+  padding: 24px max(16px, env(safe-area-inset-right)) 60px max(16px, env(safe-area-inset-left)); }
+body::before { content: ""; position: fixed; inset: -20vmax; z-index: -1;
+  background: radial-gradient(38vmax 30vmax at 12% 18%, rgba(255,196,140,.5), transparent 70%), radial-gradient(34vmax 28vmax at 88% 12%, rgba(250,214,196,.5), transparent 70%),
+              radial-gradient(40vmax 34vmax at 70% 85%, rgba(214,226,200,.45), transparent 70%), var(--bg); }
+.glass { background: var(--glass); -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%); border: 1px solid var(--edge); box-shadow: var(--shadow); }
+.wrap { max-width: 880px; margin: 0 auto; }
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 26px; flex-wrap: wrap; }
+.mark { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); display: grid; place-items: center; flex: none; }
+.mark::before { content: ""; border-left: 11px solid #1B1205; border-top: 7px solid transparent; border-bottom: 7px solid transparent; margin-left: 3px; }
+header h1 { margin: 0; font: 800 24px var(--display); letter-spacing: -.02em; }
+header .sp { flex: 1; }
+header small { color: var(--muted); }
+button { font: inherit; cursor: pointer; }
+.btn { border: 0; border-radius: 999px; padding: 10px 20px; font-weight: 600; }
+.btn.ok { background: var(--ink); color: #FFF9F1; }
+.btn.no { background: rgba(255,255,255,.9); color: var(--bad); box-shadow: 0 2px 8px rgba(92,62,32,.1); }
+.btn.ghost { background: rgba(255,255,255,.75); color: var(--ink); box-shadow: 0 2px 8px rgba(92,62,32,.08); }
+.btn:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.tab { border: 1px solid var(--edge); border-radius: 999px; padding: 8px 16px; background: rgba(255,255,255,.6); color: #5A4F45; font-weight: 500; }
+.tab[aria-selected="true"] { background: var(--ink); color: #FFF9F1; border-color: var(--ink); }
+.tab b { font-weight: 700; margin-left: 4px; }
+.list { display: grid; gap: 14px; }
+.req { border-radius: 22px; padding: 20px 22px; display: grid; grid-template-columns: 1fr auto; gap: 14px 20px; align-items: start; }
+.req h2 { margin: 0 0 2px; font: 700 19px var(--display); }
+.req .who { color: var(--muted); font-size: 14px; }
+.req .who a { color: var(--accent-text); }
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { font-size: 13px; padding: 4px 11px; border-radius: 999px; background: rgba(255,255,255,.9); box-shadow: 0 1px 4px rgba(92,62,32,.08); }
+.chip.warn { background: rgba(232,163,61,.18); color: var(--accent-text); box-shadow: none; font-weight: 600; }
+.chip.good { background: rgba(46,157,99,.12); color: var(--ok); box-shadow: none; font-weight: 600; }
+.chip.bad { background: rgba(200,64,47,.1); color: var(--bad); box-shadow: none; font-weight: 600; }
+.acts { display: flex; flex-direction: column; gap: 8px; min-width: 150px; }
+.note { grid-column: 1 / -1; display: flex; gap: 8px; }
+.note input { flex: 1; min-width: 0; border: 1px solid rgba(60,42,25,.14); border-radius: 12px; padding: 9px 12px; background: rgba(255,255,255,.8); font: inherit; font-size: 14px; }
+.decided { font-size: 14px; color: var(--muted); grid-column: 1 / -1; }
+.empty { border-radius: 22px; padding: 34px; text-align: center; color: var(--muted); }
+.empty strong { display: block; color: var(--ink); font: 700 20px var(--display); margin-bottom: 4px; }
+.login { max-width: 400px; margin: 12vh auto 0; border-radius: 28px; padding: 32px; }
+.login h1 { font: 800 26px var(--display); margin: 18px 0 6px; }
+.login p { color: var(--muted); margin: 0 0 20px; }
+.login input { width: 100%; padding: 13px 16px; border-radius: 14px; border: 1px solid rgba(60,42,25,.14); background: rgba(255,255,255,.8); font: inherit; margin-bottom: 12px; }
+.login .btn { width: 100%; padding: 13px; }
+.err { color: var(--bad); font-size: 14px; min-height: 20px; margin-bottom: 8px; }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #FFF9F1; padding: 11px 20px; border-radius: 999px; font-weight: 500; }
+@media (max-width: 600px) { .req { grid-template-columns: 1fr; } .acts { flex-direction: row; } .acts .btn { flex: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const when = (iso) => { if (!iso) return ''; const d = new Date(iso); return isNaN(d) ? String(iso) : d.toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+  const money = (v) => v == null || v === '' ? '' : 'KES ' + Number(v).toLocaleString();
+  let tab = 'waiting', data = null, timer;
+
+  async function api(path, body) {
+    const r = await fetch(path, { method: body ? 'POST' : 'GET', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined, credentials: 'same-origin' });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401 && path !== '/api/director/login') { showLogin(); throw new Error('login'); }
+    if (!r.ok) throw new Error(d.error || 'Something went wrong.');
+    return d;
+  }
+  function toast(m) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.append(t); setTimeout(() => t.remove(), 3500); }
+
+  function showLogin() {
+    clearInterval(timer);
+    app.innerHTML = `<form class="login glass" id="f"><div class="mark"></div><h1>Premium approvals</h1>
+      <p>Only the director can approve Flex TV Premium.</p>
+      <label for="pw" style="display:block;font-size:14px;color:var(--muted);margin-bottom:6px">Director password</label>
+      <input id="pw" type="password" autocomplete="current-password" autofocus required>
+      <div class="err" id="err" role="alert"></div><button class="btn ok" type="submit">Sign in</button></form>`;
+    document.getElementById('f').onsubmit = async (e) => {
+      e.preventDefault();
+      try { await api('/api/director/login', { password: document.getElementById('pw').value }); load(); }
+      catch (er) { if (er.message !== 'login') document.getElementById('err').textContent = er.message; }
+    };
+  }
+
+  function card(r, kind) {
+    const link = data.splynxUrl ? `<a href="${esc(data.splynxUrl)}/admin/customers/view?id=${encodeURIComponent(r.customer_id)}" target="_blank" rel="noopener">open in Splynx</a>` : '';
+    const status = r.customer_status && r.customer_status !== 'active' ? `<span class="chip bad">Account ${esc(r.customer_status)}</span>` : '';
+    const head = `<div><h2>${esc(r.name || r.login)}</h2><div class="who">${esc(r.login)}, Splynx ID ${esc(r.customer_id)}${link ? ', ' + link : ''}</div>
+      <div class="facts"><span class="chip warn">${esc(r.package_label || 'Premium')}</span>${r.price ? `<span class="chip">${money(r.price)}/month</span>` : ''}
+      ${r.start_date ? `<span class="chip">Service starts ${esc(r.start_date)}</span>` : ''}${r.first_seen ? `<span class="chip">Requested ${when(r.first_seen)}</span>` : ''}${status}</div></div>`;
+    if (kind === 'waiting') {
+      return `<article class="req glass" data-key="${esc(r.key)}">${head}
+        <div class="acts"><button class="btn ok" data-d="approved">Approve</button><button class="btn no" data-d="rejected">Reject</button></div>
+        <div class="note"><label class="sr" for="n-${esc(r.key)}" style="position:absolute;left:-9999px">Note</label><input id="n-${esc(r.key)}" placeholder="Note (optional), e.g. reason for rejecting"></div></article>`;
+    }
+    if (kind === 'rejected') {
+      return `<article class="req glass" data-key="${esc(r.key)}">${head}<div class="acts"><button class="btn ok" data-d="approved">Approve now</button></div>
+        <div class="decided">Rejected by ${esc(r.by)} on ${when(r.at)}${r.note ? `: “${esc(r.note)}”` : ''}. The customer has Moderate until approved; remove the Premium service in Splynx to stop billing it.</div></article>`;
+    }
+    return `<article class="req glass" data-key="${esc(r.key)}">${head}<div class="acts">
+        ${r.stillActive ? '<span class="chip good">Active</span>' : '<span class="chip warn">Switching on…</span>'}<button class="btn no" data-d="rejected">Revoke</button></div>
+        <div class="decided">Approved by ${esc(r.by)} on ${when(r.at)}${r.note ? `: “${esc(r.note)}”` : ''}</div></article>`;
+  }
+
+  function render() {
+    const counts = { waiting: data.waiting.length, approved: data.approved.length, rejected: data.rejected.length };
+    const items = data[tab];
+    app.innerHTML = `<header><div class="mark"></div><h1>Premium approvals</h1><span class="sp"></span>
+        <small>${esc(data.director)}${data.lastSync ? `, Splynx checked ${when(data.lastSync)}` : ''}</small><button class="btn ghost" id="out">Sign out</button></header>
+      <div class="tabs" role="tablist">
+        ${['waiting', 'approved', 'rejected'].map((t) => `<button class="tab" role="tab" aria-selected="${t === tab}" data-t="${t}">${{ waiting: 'Waiting', approved: 'Approved', rejected: 'Rejected' }[t]}<b>${counts[t]}</b></button>`).join('')}
+      </div>
+      <div class="list">${items.length ? items.map((r) => card(r, tab)).join('') : `<div class="empty glass"><strong>${{ waiting: 'Nothing waiting', approved: 'No approvals yet', rejected: 'Nothing rejected' }[tab]}</strong>${tab === 'waiting' ? 'When staff add Flex TV Premium to a customer in Splynx, it appears here within 5 minutes.' : ''}</div>`}</div>`;
+    app.querySelectorAll('[data-t]').forEach((b) => b.onclick = () => { tab = b.dataset.t; render(); });
+    document.getElementById('out').onclick = async () => { await api('/api/director/logout', {}); showLogin(); };
+    app.querySelectorAll('[data-d]').forEach((b) => b.onclick = async () => {
+      const art = b.closest('[data-key]'), key = art.dataset.key, d = b.dataset.d;
+      const note = art.querySelector('input')?.value || '';
+      art.querySelectorAll('button').forEach((x) => x.disabled = true);
+      try {
+        await api('/api/director/decide', { key, decision: d, note });
+        toast(d === 'approved' ? 'Approved. Premium switches on within a minute.' : (tab === 'approved' ? 'Revoked. The customer goes back to Moderate.' : 'Rejected. The customer stays on Moderate.'));
+        load();
+      } catch (e) { if (e.message !== 'login') { toast(e.message); art.querySelectorAll('button').forEach((x) => x.disabled = false); } }
+    });
+  }
+
+  async function load() {
+    try { data = await api('/api/director/requests'); render(); } catch (e) { if (e.message !== 'login') toast(e.message); return; }
+    clearInterval(timer); timer = setInterval(async () => {
+      if (document.activeElement?.tagName === 'INPUT') return;
+      try { data = await api('/api/director/requests'); render(); } catch {}
+    }, 30000);
+  }
+  load();
+})();
+</script>
+</body>
+</html>
