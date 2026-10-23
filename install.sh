@@ -114,7 +114,7 @@ ok "Film folders in $MEDIA_DIR"
 # ── firewall ─────────────────────────────────────────────────────────────────
 bold "Firewall"
 # keep whatever port you are connected on now, so the firewall can't lock you out
-SSH_PORT="${SSH_CONNECTION##* }"
+SSH_PORT="${SSH_CONNECTION:-}"; SSH_PORT="${SSH_PORT##* }"   # empty under sudo, which clears SSH_CONNECTION
 [ -n "$SSH_PORT" ] || SSH_PORT=$(sshd -T 2>/dev/null | awk '/^port /{print $2; exit}')
 SSH_PORT="${SSH_PORT:-22}"
 ufw default deny incoming >/dev/null

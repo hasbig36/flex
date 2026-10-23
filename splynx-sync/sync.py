@@ -155,6 +155,28 @@ class Splynx:
             return list(rows.values()) if isinstance(rows, dict) else (rows or [])
         return []
 
+    def services_for_tariffs(self, kind: str, tariff_ids: list[str]) -> list[dict] | None:
+        """All customers' services on the given tariffs in a few paged calls (customer id 0 =
+        every customer), instead of one call per customer. None if this Splynx can't do it."""
+        if not tariff_ids:
+            return []
+        params = {"main_attributes[tariff_id][0]": "IN"}
+        for i, t in enumerate(tariff_ids):
+            params[f"main_attributes[tariff_id][1][{i}]"] = t
+        for name in self._service_paths(kind):
+            try:
+                if self.get(f"admin/customers/customer/0/{name}-services", dict(params, limit=1),
+                            none_on_404=True) is None:
+                    continue                      # this Splynx doesn't use that name
+                rows = self.list_all(f"admin/customers/customer/0/{name}-services", params)
+            except requests.HTTPError as e:
+                log.warning("Cannot list %s services for all customers at once (%s)", name, e)
+                return None
+            self._resolved.setdefault(kind, name)
+            wanted = set(tariff_ids)
+            return [r for r in rows if str(r.get("tariff_id", "")) in wanted]
+        return None
+
     def tariff_names(self, kind: str) -> dict[str, str]:
         name = kind
         for cand in self._service_paths(kind):
@@ -384,17 +406,37 @@ def sync_once(dry_run: bool = False) -> dict:
     # Only customers that could ever be entitled are worth a services call
     candidates = [c for c in customers if str(c.get("category", "")).lower() != "lead"]
 
-    def fetch(c: dict):
-        svcs = []
-        for kind in cfg["service_types"]:
-            try:
-                svcs += sx.services(c["id"], kind)
-            except requests.HTTPError as e:
-                log.warning("Customer %s: cannot read %s services: %s", c["id"], kind, e)
-        return c, svcs
+    # Tariffs that give media: the IDs in packages.yaml plus any matched by name.
+    media_tariffs = sorted(set(cfg["tariffs"]) | {tid for tid, n in names.items()
+                                                  if n.lower() in cfg["tariff_names"]})
+    by_customer: dict[str, list[dict]] | None = {}
+    for kind in cfg["service_types"]:
+        rows = sx.services_for_tariffs(kind, media_tariffs)
+        if rows is None:
+            by_customer = None
+            break
+        for svc in rows:
+            by_customer.setdefault(str(svc.get("customer_id")), []).append(svc)
 
-    with ThreadPoolExecutor(max_workers=CONCURRENCY) as pool:
-        results = list(pool.map(fetch, candidates))
+    if by_customer is not None:
+        log.info("Splynx: %d media services on tariffs %s", sum(map(len, by_customer.values())),
+                 ",".join(media_tariffs) or "-")
+        results = [(c, by_customer.get(str(c["id"]), [])) for c in candidates]
+    else:
+        # Older Splynx without the all-customers listing: one call per customer (slow, heavy).
+        log.warning("Falling back to one services call per customer (%d calls)", len(candidates))
+
+        def fetch(c: dict):
+            svcs = []
+            for kind in cfg["service_types"]:
+                try:
+                    svcs += sx.services(c["id"], kind)
+                except requests.HTTPError as e:
+                    log.warning("Customer %s: cannot read %s services: %s", c["id"], kind, e)
+            return c, svcs
+
+        with ThreadPoolExecutor(max_workers=CONCURRENCY) as pool:
+            results = list(pool.map(fetch, candidates))
 
     libraries = jf.libraries()
     missing_libs: set[str] = set()
