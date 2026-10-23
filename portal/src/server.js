@@ -702,6 +702,7 @@ app.get('/manifest.webmanifest', (req, res) => {
     ],
   });
 });
+app.get(['/app', '/get'], (req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'get.html')));
 app.get('/api/app', (req, res) => {
   let android = null;
   try { const st = fs.statSync(APK_FILE); android = { url: '/download/flex.apk', size: st.size, updated: st.mtime.toISOString() }; } catch { /* no APK yet */ }

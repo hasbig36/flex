@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F8F4EE">
+  <title>Get the app</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #F8F4EE; --text: #221D18; --muted: #7B7066; --accent: #E8A33D; --accent-ink: #1B1205; --accent-text: #9A5F12;
+      --display: "Bricolage Grotesque", system-ui, sans-serif; --body: "Figtree", system-ui, sans-serif;
+      --shadow: inset 0 1px 0 #fff, 0 12px 32px rgba(92,62,32,.10), 0 1px 3px rgba(92,62,32,.06); }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font: 400 16px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+    body::before { content: ""; position: fixed; inset: -20vmax; z-index: -1; pointer-events: none;
+      background: radial-gradient(38vmax 30vmax at 12% 18%, rgba(255,196,140,.55), transparent 70%),
+        radial-gradient(34vmax 28vmax at 88% 12%, rgba(250,214,196,.55), transparent 70%),
+        radial-gradient(40vmax 34vmax at 70% 85%, rgba(214,226,200,.5), transparent 70%), var(--bg); }
+    main { max-width: 720px; margin: 0 auto; padding: 40px 16px 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; margin-bottom: 34px; }
+    .mark { width: 44px; height: 44px; border-radius: 13px; background: var(--accent); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(232,163,61,.4), inset 0 1px 0 rgba(255,255,255,.6); }
+    .mark::before { content: ""; border-left: 14px solid var(--accent-ink); border-top: 9px solid transparent; border-bottom: 9px solid transparent; margin-left: 4px; }
+    .brand b { font: 800 26px var(--display); letter-spacing: -.01em; }
+    h1 { font: 800 clamp(32px, 6vw, 46px)/1.05 var(--display); letter-spacing: -.02em; margin: 0 0 10px; }
+    .lead { color: var(--muted); margin: 0 0 28px; font-size: 18px; }
+    .card { background: rgba(255,255,255,.72); backdrop-filter: blur(24px) saturate(185%); -webkit-backdrop-filter: blur(24px) saturate(185%);
+      border: 1px solid rgba(255,255,255,.85); border-radius: 24px; box-shadow: var(--shadow); padding: 26px 26px 24px; margin-bottom: 18px; }
+    .card h2 { font: 700 22px var(--display); margin: 0 0 6px; }
+    .card p { margin: 0 0 14px; color: var(--muted); }
+    .tag { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 8px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font: 600 17px var(--body); text-decoration: none; cursor: pointer;
+      border: 0; border-radius: 999px; padding: 15px 28px; background: var(--accent); color: var(--accent-ink);
+      box-shadow: 0 8px 22px rgba(232,163,61,.35), inset 0 1px 0 rgba(255,255,255,.5); }
+    .btn.ghost { background: rgba(255,255,255,.9); box-shadow: 0 4px 14px rgba(92,62,32,.10); }
+    .btn svg { width: 20px; height: 20px; }
+    .btn:focus-visible, a:focus-visible { outline: 3px solid var(--accent-text); outline-offset: 3px; }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    ol { margin: 4px 0 0; padding-left: 22px; } ol li { margin: 6px 0; }
+    .note { font-size: 14px; color: var(--muted); margin-top: 14px !important; }
+    code { background: #F1EBE2; padding: 2px 7px; border-radius: 7px; font-size: 15px; }
+    .others h2 { font: 700 18px var(--display); margin: 34px 0 12px; }
+    .others .card { padding: 20px 22px; }
+    .others .card h3 { margin: 0 0 4px; font-size: 17px; }
+    .others .card p { margin: 0; font-size: 15px; }
+    .others a { color: var(--accent-text); font-weight: 600; }
+  </style>
+</head>
+<body>
+<main>
+  <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><b data-name>Flex</b></a>
+  <h1>Get the <span data-name>Flex</span> app</h1>
+  <p class="lead">Movies, series and live TV on your phone, TV box or laptop.</p>
+
+  <!-- the card for the device this page is opened on -->
+  <section class="card" id="android" hidden>
+    <span class="tag">Android phone or TV box</span>
+    <h2>Download the app</h2>
+    <p>Tap the button. When Chrome asks, tap <b>Download</b>, then open the file and tap <b>Install</b>.</p>
+    <a class="btn" data-apk href="/download/flex.apk" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg><span>Download for Android<span data-size></span></span></a>
+    <p class="note">The first time, Android may ask you to allow installing apps from Chrome. Turn it on, then go back and tap Install. Chrome may also say the file can be harmful because it isn't from Google Play. It's safe to download.</p>
+  </section>
+
+  <section class="card" id="ios" hidden>
+    <span class="tag">iPhone or iPad</span>
+    <h2>Add Flex to your Home Screen</h2>
+    <ol>
+      <li>Open this page in <b>Safari</b>.</li>
+      <li>Tap the <b>Share</b> button (the square with an arrow).</li>
+      <li>Tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+    </ol>
+  </section>
+
+  <section class="card" id="desktop" hidden>
+    <span class="tag">Laptop or computer</span>
+    <h2>Install Flex</h2>
+    <p data-hasprompt hidden>Click the button to add Flex to your computer. It opens in its own window, like an app.</p>
+    <p data-noprompt>In <b>Chrome</b> or <b>Edge</b>, click the install icon at the right end of the address bar, or open the menu (⋮) and choose <b>Install Flex</b>.</p>
+    <div class="row">
+      <button class="btn" data-install hidden>Install Flex</button>
+      <a class="btn ghost" href="/">Open Flex in the browser</a>
+    </div>
+  </section>
+
+  <div class="others">
+    <h2>Other devices</h2>
+    <div class="card" data-apkonly>
+      <h3>Android phones and Android TV / Google TV boxes</h3>
+      <p>Open <code><span data-host>tv.savenet.co.ke</span>/app</code> in Chrome and tap Download. On a TV box, open the <b>Downloader</b> app, enter <code><span data-host>tv.savenet.co.ke</span>/download/flex.apk</code>, then install.</p>
+    </div>
+    <div class="card">
+      <h3>iPhone and iPad</h3>
+      <p>Open <code><span data-host>tv.savenet.co.ke</span></code> in Safari, then Share, then Add to Home Screen.</p>
+    </div>
+    <div class="card">
+      <h3>Laptops (Windows, Mac, Chromebook)</h3>
+      <p>Open <code><span data-host>tv.savenet.co.ke</span></code> in Chrome or Edge and click the install icon in the address bar.</p>
+    </div>
+    <p class="note">Sign in with your customer login and password. <a href="/">Open Flex</a></p>
+  </div>
+</main>
+<script>
+(() => {
+  const $$ = (s) => document.querySelectorAll(s);
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(ua);
+  $$('[data-host]').forEach((el) => { el.textContent = location.host; });
+  fetch('/api/brand').then((r) => r.json()).then((b) => {
+    if (!b?.name) return;
+    $$('[data-name]').forEach((el) => { el.textContent = b.name; });
+    document.title = 'Get the ' + b.name + ' app';
+  }).catch(() => {});
+
+  let prompt = null;
+  const install = document.querySelector('[data-install]');
+  const showPrompt = () => {
+    install.hidden = !prompt;
+    document.querySelector('[data-hasprompt]').hidden = !prompt;
+    document.querySelector('[data-noprompt]').hidden = !!prompt;
+  };
+  addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); prompt = e; showPrompt(); });
+  install.onclick = async () => { if (!prompt) return; prompt.prompt(); await prompt.userChoice.catch(() => null); prompt = null; showPrompt(); };
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+
+  fetch('/api/app').then((r) => r.json()).catch(() => ({})).then((info) => {
+    const apk = info?.android;
+    if (apk) document.querySelector('[data-size]').textContent = ' (' + (apk.size < 1048576 ? Math.max(1, Math.round(apk.size / 1024)) + ' KB' : Math.round(apk.size / 1048576) + ' MB') + ')';
+    else $$('[data-apkonly]').forEach((el) => { el.hidden = true; });
+    if (isIOS) document.getElementById('ios').hidden = false;
+    else if (isAndroid && apk) document.getElementById('android').hidden = false;
+    else document.getElementById('desktop').hidden = false;
+  });
+})();
+</script>
+</body>
+</html>

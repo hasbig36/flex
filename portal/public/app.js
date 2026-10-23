@@ -440,7 +440,7 @@
       <p class="muted" style="margin:6px 0 16px">Watch ${esc(brand.name)} from your home screen, on your phone, laptop or TV box.</p>
       <div class="actions" style="display:flex;flex-wrap:wrap;gap:12px">
         <button class="btn accent" id="installBtn" hidden>Install ${esc(brand.name)}</button>
-        ${apk ? `<a class="btn ${isAndroid ? 'accent' : 'ghost'}" href="${esc(apk.url)}" download>Download Android app (${Math.max(1, Math.round(apk.size / 1048576))} MB)</a>` : ''}
+        ${apk ? `<a class="btn ${isAndroid ? 'accent' : 'ghost'}" href="${esc(apk.url)}" download>Download Android app (${apk.size < 1048576 ? Math.max(1, Math.round(apk.size / 1024)) + ' KB' : Math.round(apk.size / 1048576) + ' MB'})</a>` : ''}
       </div>
       <p class="muted" style="margin:14px 0 0">${how}</p>
       ${apk ? '<p class="muted" style="margin:8px 0 0">The Android app works on phones and Android TV boxes. On a TV box, install it with a file manager or the Downloader app.</p>' : ''}
